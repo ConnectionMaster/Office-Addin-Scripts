@@ -5,7 +5,7 @@ import * as assert from "assert";
 import * as fs from "fs";
 import * as mocha from "mocha";
 import * as path from "path";
-import * as uuid from "uuid";
+import { v1 as uuidv1 } from "uuid";
 import { isUUID } from "validator";
 import { AddInType, getAddInTypeForManifestOfficeAppType, getAddInTypes, parseAddInType, parseAddInTypes, toAddInType } from "../src/addInTypes";
 import * as manifestInfo from "../src/manifestInfo";
@@ -24,7 +24,7 @@ import { validateManifest } from "../src/validate";
 
 const manifestOriginalFolder = path.resolve("./test/manifests");
 const manifestTestFolder = path.resolve("./testExecution/testManifests");
-const testManifest = path.resolve(manifestTestFolder, "Taskpane.manifest.xml");
+const testManifest = path.resolve(manifestTestFolder, "TaskPane.manifest.xml");
 
 describe("Unit Tests", function() {
   describe("addInTypes.ts", function() {
@@ -472,11 +472,6 @@ describe("Unit Tests", function() {
       });
     });
     describe("modifyManifestFile()", function() {
-      before(function() {
-        if (process.platform == "linux") {
-          this.skip();
-        }
-      })
       beforeEach(async function() {
         await _createManifestFilesFolder();
       });
@@ -485,7 +480,7 @@ describe("Unit Tests", function() {
       });
       it("should handle a specified valid guid and displayName", async function() {
         // call modify, specifying guid and displayName  parameters
-        const testGuid = uuid.v1();
+        const testGuid = uuidv1();
         const testDisplayName = "TestDisplayName";
         const updatedInfo = await manifestInfo.modifyManifestFile(testManifest, testGuid, testDisplayName);
 
@@ -527,10 +522,10 @@ describe("Unit Tests", function() {
         }
         assert.strictEqual(result, `You need to specify something to change in the manifest.`);
       });
-      it.skip("should handle an invalid manifest file path", async function() {
+      it("should handle an invalid manifest file path", async function() {
         // call  modify, specifying an invalid manifest path with a valid guid and displayName
         const invalidManifest = path.normalize(`${manifestTestFolder}/foo/manifest.xml`);
-        const testGuid = uuid.v1();
+        const testGuid = uuidv1();
         const testDisplayName = "TestDisplayName";
         let result;
         try {
@@ -555,6 +550,17 @@ describe("Unit Tests", function() {
         assert.strictEqual(validation.report!.notes!.length > 0, true);
         assert.strictEqual(validation.report!.warnings!.length, 0);
         assert.strictEqual(validation.report!.addInDetails!.supportedProducts!.length > 0, true);
+      });
+      it("invalid manifest path", async function() {
+        this.timeout(6000);
+        let result: string = "";
+        const invalidManifestPath = path.normalize(`${manifestTestFolder}/foo/manifest.xml`);
+        try {
+          await validateManifest(invalidManifestPath);
+        } catch (err) {
+          result = err.message;
+        }
+        assert.strictEqual(result.indexOf("ENOENT: no such file or directory") >= 0, true);
       });
       it("Excel", async function() {
         this.timeout(6000);
@@ -636,8 +642,8 @@ async function _deleteManifestTestFolder(projectFolder: string): Promise<void> {
 
 async function _createManifestFilesFolder(): Promise<void> {
     if (fs.existsSync(manifestTestFolder)) {
-      _deleteManifestTestFolder(manifestTestFolder);
-  }
+      await _deleteManifestTestFolder(manifestTestFolder);
+    }
     const fsExtra = require("fs-extra");
     await fsExtra.copy(manifestOriginalFolder, manifestTestFolder);
 }
