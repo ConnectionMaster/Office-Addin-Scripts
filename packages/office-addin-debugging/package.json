@@ -25,7 +25,7 @@
   "dependencies": {
     "child_process": "^1.0.2",
     "commander": "^6.2.0",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.1.1",
     "office-addin-cli": "^1.2.3",
     "office-addin-dev-certs": "^1.6.3",
     "office-addin-dev-settings": "^1.9.3",
