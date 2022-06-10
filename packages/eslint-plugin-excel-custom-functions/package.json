@@ -54,7 +54,7 @@
     "office-addin-usage-data": "^1.3.3",
     "prettier": "^2.1.2",
     "rimraf": "^3.0.2",
-    "semantic-release": "^17.3.7",
+    "semantic-release": "^19.0.3",
     "ts-jest": "^26.4.0",
     "typescript": "^4.3.5"
   },
